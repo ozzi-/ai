@@ -10,7 +10,7 @@ public class Calculation {
 	}
 	
 	
-	public static int getDistance(ActorData a, ActorData b){
+	public static double getDistance(ActorData a, ActorData b){
 		int xdiff = Math.abs(a.getX() - b.getX());
 		int ydiff = Math.abs(a.getY() - b.getY());
 		return (int) Math.sqrt(xdiff*xdiff+ydiff*ydiff);

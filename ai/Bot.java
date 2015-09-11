@@ -18,9 +18,9 @@ public class Bot implements Actor{
 	
 	private Point getClosestPoint(){
 		Point point = null;
-		int shortestDistance = Integer.MAX_VALUE;
+		double shortestDistance = Double.MAX_VALUE;
 		for(int i = 0; i< ActorList.get(ActorName.POINT).size();i++){
-			int distanceToPoint = util.Calculation.getDistance(this.ad, ActorList.get(ActorName.POINT).get(i).getActorData());
+			double distanceToPoint = util.Calculation.getDistance(this.ad, ActorList.get(ActorName.POINT).get(i).getActorData());
 			if (distanceToPoint < shortestDistance){
 				point = (Point)ActorList.get(ActorName.POINT).get(i);
 				shortestDistance = distanceToPoint;
@@ -35,9 +35,9 @@ public class Bot implements Actor{
 		if(closestPoint!=null){
 			double direction = util.Calculation.getDirection(closestPoint.getActorData(), ad);
 			int speed = ad.getSpeed();
-			int distance = util.Calculation.getDistance(ad, closestPoint.getActorData());
+			double distance = util.Calculation.getDistance(ad, closestPoint.getActorData());
 			if(speed>distance){
-				speed=distance;
+				speed=(int)distance;
 			}
 		    ad.setX((int)(ad.getX() + (speed * Math.cos(direction))));
 		    ad.setY((int)(ad.getY() + (speed * Math.sin(direction))));
