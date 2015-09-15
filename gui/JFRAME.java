@@ -20,6 +20,8 @@ public class JFRAME extends JFrame {
 	private void initUI() {
 		surface = new Surface();
 		add(surface);
+		addMouseListener(new MouseClickHandler());
+		addMouseMotionListener(new MouseMotionHandler());
 		setSize(Config.windowX,Config.windowY);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

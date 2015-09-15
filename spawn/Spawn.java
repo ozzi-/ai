@@ -14,49 +14,62 @@ import ai.Actor;
 import ai.ActorData;
 import ai.Bot;
 import ai.Point;
+import ai.Wall;
 import config.Config;
 
 public class Spawn {
 	public static void main(String[] args) throws InterruptedException, ExecutionException {
 		
-		ExecutorService threadPool = Executors.newFixedThreadPool(2);
+		System.out.println("Starting with "+Config.threadsInPool+" threads in the pool");
+		ExecutorService threadPool = Executors.newFixedThreadPool(Config.threadsInPool);
+		
 		ArrayList<Future<ActorData>> actorThreadList = new ArrayList<Future<ActorData>>();
 
-		gui.JFRAME ex = new gui.JFRAME();
+		try {
+			ActorList.add(ActorName.BOT);
+			ActorList.add(ActorName.POINT);
+			ActorList.add(ActorName.WALL);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+			
+		ArrayList<Actor> pointList = ActorList.get(ActorName.POINT);
+		ArrayList<Actor> botList = ActorList.get(ActorName.BOT);
+		ArrayList<Actor> wallList = ActorList.get(ActorName.WALL);
+
+		ActorData adWall = new ActorData(500, 700);
+		adWall.setX_end(200);
+		adWall.setY_end(200);
+		Wall wall = new Wall(adWall);
+		wallList.add(wall);
+
 		
+		
+		Point point = new Point(new ActorData(Config.windowX/2, Config.windowY/2));
+		pointList.add(point);
+	
+		Point pointTwo = new Point(new ActorData(Config.windowX/3, Config.windowY/2));
+		pointList.add(pointTwo);
+
+		for (int i = 0; i < Config.botCount; i++) {
+			int x = ThreadLocalRandom.current().nextInt(0,Config.windowX);
+			int y = ThreadLocalRandom.current().nextInt(0,Config.windowY);
+			Bot actorbot = new Bot(new ActorData(x,y));
+			actorbot.getActorData().setSpeed(10);
+			actorThreadList.add(threadPool.submit(actorbot));
+			botList.add(actorbot);
+		}
+		
+		
+		
+		gui.JFRAME ex = new gui.JFRAME();		
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				ex.setVisible(true);
 			}
 		});
-		
-		try {
-			ActorList.add(ActorName.BOT);
-			ActorList.add(ActorName.POINT);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		ArrayList<Actor> pointList = ActorList.get(ActorName.POINT);
-		ArrayList<Actor> botList = ActorList.get(ActorName.BOT);
-		
-		for (int i = 0; i < Config.botCount; i++) {
-			int x = ThreadLocalRandom.current().nextInt(0,Config.windowX);
-			int y = ThreadLocalRandom.current().nextInt(0,Config.windowY);
-			Bot actorbot = new Bot(new ActorData(x,y,5));
-			actorThreadList.add(threadPool.submit(actorbot));
-			botList.add(actorbot);
-		}
-		
 	
-		
-		Point point = new Point(new ActorData(Config.windowX/2, Config.windowY/2,5));
-		pointList.add(point);
-	
-		Point pointTwo = new Point(new ActorData(Config.windowX/3, Config.windowY/2,5));
-		pointList.add(pointTwo);
-
 		
 		while (true) {
 			long preActorTime = System.currentTimeMillis();
@@ -74,9 +87,6 @@ public class Spawn {
 			long sleepTime = Config.simTime-executionActorTime;
 			Thread.sleep(sleepTime);
 			ex.getSurface().repaint();
-
-	
 		}
-
 	}
 }

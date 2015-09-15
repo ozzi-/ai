@@ -14,8 +14,8 @@ public class CalculationTest {
 
 	@Test
 	public void test(){
-		ActorData ad_2_1 = new ActorData(2, 1, 5);
-		ActorData ad_4_5 = new ActorData(4, 5, 5);
+		ActorData ad_2_1 = new ActorData(2, 1);
+		ActorData ad_4_5 = new ActorData(4, 5);
 
 		double dir = Calculation.getDirection(ad_2_1,ad_4_5);
 		assertEquals(dir, -2.034,epsilon);
@@ -26,12 +26,12 @@ public class CalculationTest {
 	
 	@Test
 	public void testDistance() {
-		ActorData ad_0_0 = new ActorData(0, 0, 5);
-		ActorData ad_0_5 = new ActorData(0, 5, 5);
-		ActorData ad_5_0 = new ActorData(5, 0, 5);
-		ActorData ad_5_5 = new ActorData(5, 5, 5);
-		ActorData ad_7_3 = new ActorData(7, 3, 5);
-		ActorData ad_min2_3 = new ActorData(-2, 3, 5);
+		ActorData ad_0_0 = new ActorData(0, 0);
+		ActorData ad_0_5 = new ActorData(0, 5);
+		ActorData ad_5_0 = new ActorData(5, 0);
+		ActorData ad_5_5 = new ActorData(5, 5);
+		ActorData ad_7_3 = new ActorData(7, 3);
+		ActorData ad_min2_3 = new ActorData(-2, 3);
 		
 		double distance_0_0_and_0_5= Calculation.getDistance(ad_0_0, ad_0_5);
 		assertEquals(distance_0_0_and_0_5,5,epsilon);

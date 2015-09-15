@@ -7,29 +7,38 @@ package ai;
  */
 public class ActorData {
 	
-	private int x;
-	private int y;
+	private double x;
+	private double y;
+	private double x_end;
+	private double y_end;
+	
 	private int speed;
-
-	public ActorData(int x, int y, int speed) {
+	private int radius;
+	
+	private double direction;
+	
+	
+	
+	private Objective objective;
+	
+	public ActorData(double x, double y) {
 		this.x = x;
 		this.y = y;
-		this.setSpeed(speed);
 	}
-
-	public int getX() {
+	
+	public double getX() {
 		return x;
 	}
 
-	public void setX(int x) {
+	public void setX(double x) {
 		this.x = x;
 	}
 
-	public int getY() {
+	public double getY() {
 		return y;
 	}
 
-	public void setY(int y) {
+	public void setY (double y) {
 		this.y = y;
 	}
 
@@ -39,6 +48,53 @@ public class ActorData {
 
 	public void setSpeed(int speed) {
 		this.speed = speed;
+	}
+
+	/**
+	 * @return direction in polar
+	 */
+	public double getDirection() {
+		return direction;
+	}
+
+	public void setDirection(double direction) {
+		this.direction = direction;
+	}
+
+	public double getX_end() {
+		return x_end;
+	}
+
+	public void setX_end(double x_end) {
+		this.x_end = x_end;
+	}
+
+	public double getY_end() {
+		return y_end;
+	}
+
+	public void setY_end(double y_end) {
+		this.y_end = y_end;
+	}
+
+	public Objective getObjective() {
+		return objective;
+	}
+
+	public void setObjective(Objective objective) {
+		this.objective = objective;
+	}
+
+	public int getRadius() {
+		return radius;
+	}
+	
+	public int getDiameter() {
+		return radius*2;
+	}
+
+	public void setRadius(int radius) {
+		this.radius = radius;
 	}
 
 }

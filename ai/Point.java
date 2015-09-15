@@ -1,11 +1,17 @@
 package ai;
 
+import config.Config;
+
 public class Point implements Actor{
 	
 	private ActorData ad;
-
+	private String representation;
+	private boolean selected = false;
+	
 	public Point(ActorData ad) {
 		this.ad = ad;
+		this.setRepresentation("0");
+		this.ad.setRadius(Config.actorRadius);
 	}
 	
 	@Override
@@ -18,9 +24,30 @@ public class Point implements Actor{
 		return ad;
 	}
 
-	@Override
 	public String getRepresentation() {
-		return "O";
+		return representation;
+	}
+
+
+	public void setRepresentation(String representation) {
+		this.representation = representation;
+	}
+
+	public boolean isSelected() {
+		return selected;
+	}
+	
+	public void toggleSelected() {
+		setSelected(!selected);
+	}
+
+	public void setSelected(boolean selected) {
+		this.selected = selected;
+		if(selected){
+			representation="<o>";
+		}else{
+			representation="0";
+		}
 	}
 
 }
