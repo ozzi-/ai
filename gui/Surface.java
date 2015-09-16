@@ -34,7 +34,7 @@ public class Surface extends JComponent {
 		for(int i = 0; i < botList.size();i++){
 			Actor botActor = botList.get(i);
 			ActorData botAd = botActor.getActorData();
-			g2d.drawString(botActor.getActorData().getObjective().getObj(),(int)botAd.getX(), (int)botAd.getY());
+			g2d.drawString(botActor.getActorData().getCurrentObjective().getObj(),(int)botAd.getX(), (int)botAd.getY());
 			Ellipse2D.Double circle = new Ellipse2D.Double(botAd.getX()-botAd.getRadius(), botAd.getY()-botAd.getRadius(), botAd.getDiameter(),botAd.getDiameter());
 			g2d.draw(circle);
 			if(Config.showBotDirection){

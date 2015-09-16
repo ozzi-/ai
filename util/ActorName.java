@@ -3,7 +3,6 @@ package util;
 /**
  * This is a 'fake enum' which holds the name of all the actors used in the actor lists.
  * @author ozzi
- *
  */
 
 public interface ActorName {

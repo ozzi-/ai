@@ -9,7 +9,6 @@ import util.ActorName;
 import util.Calculation;
 import ai.Actor;
 import ai.Point;
-import config.Config;
 
 public class MouseClickHandler extends MouseAdapter {
 	private ArrayList<Actor> pointList;

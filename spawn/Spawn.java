@@ -43,7 +43,20 @@ public class Spawn {
 		Wall wall = new Wall(adWall);
 		wallList.add(wall);
 
+
+		adWall = new ActorData(700, 900);
+		adWall.setX_end(400);
+		adWall.setY_end(400);
+		wall = new Wall(adWall);
+		wallList.add(wall);
 		
+		adWall = new ActorData(300, 500);
+		adWall.setX_end(800);
+		adWall.setY_end(200);
+		wall = new Wall(adWall);
+		wallList.add(wall);
+
+
 		
 		Point point = new Point(new ActorData(Config.windowX/2, Config.windowY/2));
 		pointList.add(point);

@@ -1,9 +1,12 @@
 package ai;
 
+import java.util.ArrayList;
+
+import util.ObjectiveType;
+
 /**
  * Every Actor Implementation owns a ActorData Object where he stores his info
  * @author ozzi
- *
  */
 public class ActorData {
 	
@@ -17,9 +20,8 @@ public class ActorData {
 	
 	private double direction;
 	
+	private ArrayList<Objective> objectiveList = new ArrayList<Objective>();
 	
-	
-	private Objective objective;
 	
 	public ActorData(double x, double y) {
 		this.x = x;
@@ -77,13 +79,6 @@ public class ActorData {
 		this.y_end = y_end;
 	}
 
-	public Objective getObjective() {
-		return objective;
-	}
-
-	public void setObjective(Objective objective) {
-		this.objective = objective;
-	}
 
 	public int getRadius() {
 		return radius;
@@ -97,4 +92,29 @@ public class ActorData {
 		this.radius = radius;
 	}
 
+	public ArrayList<Objective> getObjectiveList() {
+		return objectiveList;
+	}
+
+	public void setObjectiveList(ArrayList<Objective> objectiveList) {
+		this.objectiveList = objectiveList;
+	}
+
+	public void finishedCurrentObjective(){
+		if(objectiveList.size()>0){
+			objectiveList.remove(0);			
+		}
+	}
+	
+	public void insertObjective(Objective objective){
+		objectiveList.add(0, objective);
+	}
+	
+	public Objective getCurrentObjective(){
+		if(objectiveList.size()>0){
+			return objectiveList.get(0);			
+		}else{
+			return new Objective(ObjectiveType.IDLE, null);
+		}
+	}	
 }
