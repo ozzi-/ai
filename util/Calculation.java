@@ -27,6 +27,10 @@ public class Calculation {
 		if (a==b) return true;
 		return Math.abs(a - b) < eps;
 	}
+	public static double getWallLength(ActorData wallAd){
+		return Math.sqrt((wallAd.getX() - wallAd.getX_end())*(wallAd.getX() - wallAd.getX_end()) + (wallAd.getY() - wallAd.getY_end())*(wallAd.getY() - wallAd.getY_end()));
+	}
+	
 	
 	public static ActorData wallCollisionPoint(ActorData collidingWall, ActorData ad, ActorData target){
 		double x1 = collidingWall.getX();
@@ -73,14 +77,22 @@ public class Calculation {
 		ArrayList<WallCollision> collisionPoints = new ArrayList<WallCollision>();
 		for (Actor wallActor : ActorList.get(ActorName.WALL)) {
 			ActorData wallAd = wallActor.getActorData();
-			if(Line2D.Double.linesIntersect(ad.getX(), ad.getY(), target.getX(), target.getY(),wallAd.getX(),wallAd.getY(),wallAd.getX_end(),wallAd.getY_end())){
-				ActorData collisionPoint = wallCollisionPoint(wallActor.getActorData(), ad, target);
-				collisionPoints.add(new WallCollision(wallAd,collisionPoint));
-			}
+//			if(!(ad.getX()==target.getX() && ad.getY()==target.getY())){
+				if(Line2D.Double.linesIntersect(ad.getX(), ad.getY(), target.getX(), target.getY(),wallAd.getX(),wallAd.getY(),wallAd.getX_end(),wallAd.getY_end())){
+					ActorData collisionPoint = wallCollisionPoint(wallActor.getActorData(), ad, target);
+					collisionPoints.add(new WallCollision(wallAd,collisionPoint));
+				}
+//			}
 		}
 		return collisionPoints;
 	}
 
+	/**
+	 * Returns the wall which has the closest collision point to ad
+	 * @param ad
+	 * @param collisionPoints
+	 * @return
+	 */
 	public static ActorData getClosestCollisionObject(ActorData ad, ArrayList<WallCollision> collisionPoints) {
 		double distance = Double.MAX_VALUE;
 		ActorData firstCollisionObject = null;

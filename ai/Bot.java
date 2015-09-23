@@ -16,14 +16,15 @@ import config.Config;
 public class Bot implements Actor{
 
 	private ActorData ad;
+	private boolean foundPath = false;
 	
 	public Bot(ActorData ad) {
 		this.ad = ad;
 		this.ad.setX_end(ad.getX());
 		this.ad.setY_end(ad.getY());
 		this.ad.setRadius(50);
-		this.ad.getObjectiveList().add(new Objective(ObjectiveType.GOTO, new ActorData(100, 100)));
 		this.ad.getObjectiveList().add(new Objective(ObjectiveType.FOLLOW,getClosestPoint().getActorData()));
+		//this.ad.getObjectiveList().add(new Objective(ObjectiveType.GOTO, new ActorData(500, 600)));
 	}
 
 
@@ -43,9 +44,6 @@ public class Bot implements Actor{
 	@Override
 	public ActorData call() {
 		switch(ad.getCurrentObjective().getObj()){
-			case ObjectiveType.GOING_AROUND_OBSTACLE:
-				callGoingAround();
-				break;
 			case ObjectiveType.GOTO:
 			case ObjectiveType.FOLLOW:
 				callGoto();
@@ -56,23 +54,29 @@ public class Bot implements Actor{
 		return ad;
 	}
 
-	private void callGoingAround() {
-		ActorData obstacleEnd = ad.getCurrentObjective().getTarget();
-		goToPoint(new Point(obstacleEnd));
-	}
+
 
 	private void callGoto() {
-		Point target = new Point(ad.getCurrentObjective().getTarget());
-		findPath(ad, target.getActorData());
-		goToPoint(target);		
+	
+		// TODO check if target has moved in the meantime
+		Objective currentObjective = ad.getCurrentObjective();
+		
+		if(!foundPath){			
+			Path path = findPath(ad,currentObjective.getTarget());	
+		}
+		//TODO  SET IDLE IF NOTHING TO DO
 	}
+
+
+
+
+
 
 
 	private void goToPoint(Point target) {
 		ad.setX(ad.getX_end());
 		ad.setY(ad.getY_end());
 		
-		checkIfObjectiveReached(target);
 		
 		double direction = util.Calculation.getDirection(target.getActorData(), ad);
 		ad.setDirection(direction);
@@ -85,43 +89,18 @@ public class Bot implements Actor{
 		double next_X = (ad.getX() + delta_X);
 		double next_Y = (ad.getY() + delta_Y);
 
-//		ActorData nextStep = new ActorData(next_X, next_Y); // TODO CLone
-//		nextStep.setRadius(ad.getRadius());
-//		
-//		ActorData wallCollide = checkForWalls(nextStep);
-//		if(wallCollide!=null && ad.getCurrentObjective().getObj().equals(ObjectiveType.GOTO)){
-//			double distanceStart = Calculation.getDistance(ad,wallCollide);
-//			double distanceEnd = Calculation.getDistanceSecondEnd(ad,wallCollide);
-//			double target_X;
-//			double target_Y;
-//			if(distanceStart>=distanceEnd){
-//				target_X = ad.getX()-(distanceEnd * Math.cos(wallCollide.getDirection()));
-//				target_Y = ad.getY()-(distanceEnd * Math.sin(wallCollide.getDirection()));				
-//			}else{
-//				target_X = ad.getX()+(distanceStart * Math.cos(wallCollide.getDirection()));
-//				target_Y = ad.getY()+(distanceStart * Math.sin(wallCollide.getDirection()));
-//			}
-//			
-//			ActorData obstaclePoint = new ActorData(target_X,target_Y);
-//			//ad.setObjective(new Objective(ObjectiveType.GOING_AROUND_OBSTACLE, obstaclePoint)); TODO
-//			ActorData projectedCollisionPoint = Calculation.getClosestPointOnSegment(wallCollide.getX(), wallCollide.getY(), wallCollide.getX_end(), wallCollide.getY_end(), ad.getX(), ad.getY());
-//			double totalDist = Calculation.getDistance(projectedCollisionPoint, ad);
-//			double newspeed = totalDist - ad.getRadius();	
-//			next_X = (ad.getX() + (newspeed * Math.cos(direction)));
-//			next_Y = (ad.getY() + (newspeed * Math.sin(direction)));
-//		}
-
 		ad.setX_end(next_X);
 		ad.setY_end(next_Y);
 	}
 
 
-	private void checkIfObjectiveReached(Point target) {
-		if(!ad.getCurrentObjective().getObj().equals(ObjectiveType.FOLLOW)){
-			if(Calculation.equals(ad.getX(), target.getActorData().getX(), Config.epsilon) && Calculation.equals(ad.getY(), target.getActorData().getY(), Config.epsilon)){
-				ad.finishedCurrentObjective();
+	private boolean checkIfObjectiveReached(ActorData target) {
+		//if(!ad.getCurrentObjective().getObj().equals(ObjectiveType.FOLLOW)){
+			if(Calculation.equals(ad.getX(), target.getX(), Config.epsilon) && Calculation.equals(ad.getY(), target.getY(), Config.epsilon)){
+				return true;
 			}			
-		}
+		//}
+		return false;
 	}
 	
 
@@ -145,25 +124,96 @@ public class Bot implements Actor{
 		return speed;
 	}
 	
-	public void findPath(ActorData ad, ActorData target){
-		ArrayList<WallCollision> collisionWalls = Calculation.getCollisionPoints(ad, target);
-		ActorData closestCollisionPoint = Calculation.getClosestCollisionObject(ad, collisionWalls);
-		if(ad.getCurrentObjective().getTarget().equals(closestCollisionPoint)){
-			return;
-		} // TODO special case
-		if(closestCollisionPoint!=null){
-			double distance1 = Calculation.getDistance(ad, closestCollisionPoint);
-			double distance2 = Calculation.getDistanceSecondEnd(ad, closestCollisionPoint);
-			ActorData avoidPoint ;
-			double delta_X = (10 * Math.cos(closestCollisionPoint.getDirection()));
-			double delta_Y = (10 * Math.sin(closestCollisionPoint.getDirection()));
-			if(distance1>=distance2){
-				avoidPoint = new ActorData(closestCollisionPoint.getX_end()+delta_X, closestCollisionPoint.getY_end()+delta_Y);
-			}else{
-				avoidPoint = new ActorData(closestCollisionPoint.getX()+delta_X, closestCollisionPoint.getY()+delta_Y);
+	
+	public Path findPath(ActorData ad,ActorData target){
+		foundPath=true;
+		ArrayList<Path> pathsList = new ArrayList<Path>();
+		Path currentPath = new Path();
+		findPathInternal(ad, target, target, currentPath, pathsList);
+		// GET BEST PATH
+		
+		int check= Integer.MAX_VALUE;
+		Path bestPath=null;
+		for (Path path : pathsList) {
+			if(path.getSteps().size()<check){
+				bestPath=path;
+				check=path.getSteps().size();
 			}
-			ad.insertObjective(new Objective(ObjectiveType.GOING_AROUND_OBSTACLE, avoidPoint));
 		}
+		System.out.println("BEST PATH:"+bestPath.getSteps().size());
+		for (Step step : bestPath.getSteps()) {
+			System.out.println(step.getStart().getX()+"-"+step.getStart().getY()+" TO "+step.getEnd().getX()+"-"+step.getEnd().getY());
+		}
+		return null;
+	}
+	
+	private void findPathInternal(ActorData ad, ActorData next, ActorData target, Path currentPath, ArrayList<Path> possiblePathList) {
+	
+		
+		
+		ArrayList<Step> currentSteps = currentPath.getSteps();
+		for (Step currentStep : currentSteps) {
+			if(ad.getX()==currentStep.getStart().getX() && next.getX()==currentStep.getEnd().getX()){
+				// we already tried this!
+				return;
+			}
+		}
+	
+		currentPath.addStep(new Step(ad,next));
+
+		
+		ArrayList<WallCollision> collisionWallsAN = Calculation.getCollisionPoints(ad, next);
+		if(collisionWallsAN.size()>0){
+			// something is blocking our next step!
+			ActorData closestCollisionWall = Calculation.getClosestCollisionObject(ad, collisionWallsAN);
+			ActorData leftAvoid = getWayAroundObstacle(closestCollisionWall, true);
+			ActorData rightAvoid = getWayAroundObstacle(closestCollisionWall, false);
+			Path left = currentPath.getCopy();
+			Path right = currentPath.getCopy();
+		
+			findPathInternal(ad, leftAvoid, target, left, possiblePathList);
+			findPathInternal(ad, rightAvoid, target, right, possiblePathList);
+		}else{
+			ArrayList<WallCollision> collisionWallsNT = Calculation.getCollisionPoints(next, target);
+			if(collisionWallsNT.size()>0){
+				// its not the last step yet.. advance brave bot!
+				ActorData closestCollisionWall = Calculation.getClosestCollisionObject(ad, collisionWallsNT);
+				ActorData leftAvoid = getWayAroundObstacle(closestCollisionWall, true);
+				ActorData rightAvoid = getWayAroundObstacle(closestCollisionWall, false);
+
+				Path left = currentPath.getCopy();
+				Path right = currentPath.getCopy();			
+			
+
+				findPathInternal(next, leftAvoid, target, left, possiblePathList);
+				findPathInternal(next, rightAvoid, target, right, possiblePathList);
+			}else{
+				// we found a direct way 
+				System.out.println("FOUND A WAY!");
+				//currentPath.addStep(new Step(target.getX(),target.getY()));
+				currentPath.addStep(new Step(next,target));
+				possiblePathList.add(currentPath);
+				return;
+			}
+			
+		}
+	}
+
+	
+	
+
+
+	private ActorData getWayAroundObstacle(ActorData collisionWall,boolean left) {
+		double wallLength = Calculation.getWallLength(collisionWall);
+		double x; double y;
+		if(left){
+			x = collisionWall.getX()+(collisionWall.getX()-collisionWall.getX_end()) / wallLength * Config.avoidDistance;
+			y = collisionWall.getY()+(collisionWall.getY()-collisionWall.getY_end()) / wallLength * Config.avoidDistance;	
+		}else{			
+			x = collisionWall.getX_end()+(collisionWall.getX_end()-collisionWall.getX()) / wallLength * Config.avoidDistance;
+			y = collisionWall.getY_end()+(collisionWall.getY_end()-collisionWall.getY()) / wallLength * Config.avoidDistance;
+		}
+		return new ActorData(x,y);
 	}
 
 

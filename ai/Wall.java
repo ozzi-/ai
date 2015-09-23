@@ -9,7 +9,6 @@ public class Wall implements Actor {
 	public Wall(ActorData ad) {
 		this.ad=ad;
 		ad.setDirection(Math.toRadians(Calculation.getAngleOfLine(ad)));
-		System.out.println(ad.getDirection());
 	}
 
 	@Override
@@ -17,6 +16,9 @@ public class Wall implements Actor {
 		return null;
 	}
 
+	public double getLength(){
+		return Math.sqrt((ad.getX() - ad.getX_end())*(ad.getX() - ad.getX_end()) + (ad.getY() - ad.getY_end())*(ad.getY() - ad.getY_end()));
+	}
 	
 	@Override
 	public ActorData getActorData() {
@@ -27,5 +29,6 @@ public class Wall implements Actor {
 	public String getRepresentation() {
 		return null;
 	}
+
 
 }

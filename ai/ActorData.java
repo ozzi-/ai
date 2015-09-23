@@ -2,6 +2,8 @@ package ai;
 
 import java.util.ArrayList;
 
+import config.Config;
+import util.Calculation;
 import util.ObjectiveType;
 
 /**
@@ -10,6 +12,7 @@ import util.ObjectiveType;
  */
 public class ActorData {
 	
+	private String name;
 	private double x;
 	private double y;
 	private double x_end;
@@ -52,6 +55,11 @@ public class ActorData {
 		this.speed = speed;
 	}
 
+	
+	public boolean actorDataSameXY(ActorData other){
+		return Calculation.equals(getX(), other.getX(), Config.epsilon) && Calculation.equals(getY(), other.getY(), Config.epsilon);
+	}
+	
 	/**
 	 * @return direction in polar
 	 */
@@ -116,5 +124,13 @@ public class ActorData {
 		}else{
 			return new Objective(ObjectiveType.IDLE, null);
 		}
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}	
 }
