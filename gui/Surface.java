@@ -11,7 +11,6 @@ import util.ActorList;
 import util.ActorName;
 import ai.Actor;
 import ai.ActorData;
-import ai.Objective;
 import config.Config;
 
 public class Surface extends JComponent {
@@ -41,14 +40,7 @@ public class Surface extends JComponent {
 			if(Config.showBotDirection){
 				g2d.drawLine((int)botAd.getX(),(int) botAd.getY(), (int)botAd.getX_end(),(int)botAd.getY_end());				
 			}
-			Objective currentObjective = botActor.getActorData().getCurrentObjective();
 		}
-		
-		g2d.drawString(".    <EE1>   1", 860, 540);
-		g2d.drawString(".    <EE2>   2", 683, 936);
-		g2d.drawString(".    <EE4>   3", 191, 518);
-		g2d.drawString(".    <EE4>   4", 190, 400);
-		
 		
 		
 		for(int i = 0; i < pointList.size();i++){

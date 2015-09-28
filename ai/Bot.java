@@ -6,7 +6,6 @@ import util.ActorList;
 import util.ActorName;
 import util.Calculation;
 import util.ObjectiveType;
-import config.Config;
 
 /**
  * The bot class moves to the closest point
@@ -23,24 +22,10 @@ public class Bot implements Actor{
 		this.ad.setX_end(ad.getX());
 		this.ad.setY_end(ad.getY());
 		this.ad.setRadius(50);
-		this.ad.getObjectiveList().add(new Objective(ObjectiveType.FOLLOW,getClosestPoint().getActorData()));
+		this.ad.getObjectiveList().add(new Objective(ObjectiveType.GOTO,getClosestPoint().getActorData()));
 		//this.ad.getObjectiveList().add(new Objective(ObjectiveType.GOTO, new ActorData(500, 600)));
 	}
 
-
-	private Point getClosestPoint(){
-		Point point = null;
-		double shortestDistance = Double.MAX_VALUE;
-		for(int i = 0; i< ActorList.get(ActorName.POINT).size();i++){
-			double distanceToPoint = util.Calculation.getDistance(this.ad, ActorList.get(ActorName.POINT).get(i).getActorData());
-			if (distanceToPoint < shortestDistance){
-				point = (Point)ActorList.get(ActorName.POINT).get(i);
-				shortestDistance = distanceToPoint;
-			}
-		}
-		return point;
-	}
-	
 	@Override
 	public ActorData call() {
 		switch(ad.getCurrentObjective().getObj()){
@@ -61,24 +46,49 @@ public class Bot implements Actor{
 		// TODO check if target has moved in the meantime
 		Objective currentObjective = ad.getCurrentObjective();
 		
+		Path path;
 		if(!foundPath){			
-			Path path = findPath(ad,currentObjective.getTarget());	
+			 path = findPath(ad,currentObjective.getTarget());
+			currentObjective.setPathToTarget(path);
+			foundPath=true;
+		}else{
+			path = currentObjective.getPathToTarget();
 		}
-		//TODO  SET IDLE IF NOTHING TO DO
+		// TODO optimize path
+
+		Step currentStep = path.getCurrentStep();
+		goToPoint(currentStep.getEnd());
+		
+		if(ad.equalsXYEpsilon(currentStep.getEnd())){
+			boolean advanced = path.advanceStep();
+			if(!advanced){
+				ad.finishedCurrentObjective();
+			}
+		}
+		
 	}
 
 
+	private Point getClosestPoint(){
+		Point point = null;
+		double shortestDistance = Double.MAX_VALUE;
+		for(int i = 0; i< ActorList.get(ActorName.POINT).size();i++){
+			double distanceToPoint = util.Calculation.getDistance(this.ad, ActorList.get(ActorName.POINT).get(i).getActorData());
+			if (distanceToPoint < shortestDistance){
+				point = (Point)ActorList.get(ActorName.POINT).get(i);
+				shortestDistance = distanceToPoint;
+			}
+		}
+		return point;
+	}
+	
 
-
-
-
-
-	private void goToPoint(Point target) {
+	private void goToPoint(ActorData target) {
 		ad.setX(ad.getX_end());
 		ad.setY(ad.getY_end());
 		
 		
-		double direction = util.Calculation.getDirection(target.getActorData(), ad);
+		double direction = util.Calculation.getDirection(target, ad);
 		ad.setDirection(direction);
 		
 		int speed = ad.getSpeed();
@@ -91,17 +101,9 @@ public class Bot implements Actor{
 
 		ad.setX_end(next_X);
 		ad.setY_end(next_Y);
+	
 	}
 
-
-	private boolean checkIfObjectiveReached(ActorData target) {
-		//if(!ad.getCurrentObjective().getObj().equals(ObjectiveType.FOLLOW)){
-			if(Calculation.equals(ad.getX(), target.getX(), Config.epsilon) && Calculation.equals(ad.getY(), target.getY(), Config.epsilon)){
-				return true;
-			}			
-		//}
-		return false;
-	}
 	
 
 	@SuppressWarnings("unused")
@@ -116,8 +118,8 @@ public class Bot implements Actor{
 		return null;
 	}
 
-	private int getMaxSpeed(Point closestPoint, int speed) {
-		double distance = util.Calculation.getDistance(ad, closestPoint.getActorData());
+	private int getMaxSpeed(ActorData closestPoint, int speed) {
+		double distance = util.Calculation.getDistance(ad, closestPoint);
 		if(speed>distance){
 			speed=(int)distance;
 		}
@@ -130,8 +132,7 @@ public class Bot implements Actor{
 		ArrayList<Path> pathsList = new ArrayList<Path>();
 		Path currentPath = new Path();
 		findPathInternal(ad, target, target, currentPath, pathsList);
-		// GET BEST PATH
-		
+		// TODO GET BEST PATH
 		int check= Integer.MAX_VALUE;
 		Path bestPath=null;
 		for (Path path : pathsList) {
@@ -140,34 +141,32 @@ public class Bot implements Actor{
 				check=path.getSteps().size();
 			}
 		}
-		System.out.println("BEST PATH:"+bestPath.getSteps().size());
-		for (Step step : bestPath.getSteps()) {
-			System.out.println(step.getStart().getX()+"-"+step.getStart().getY()+" TO "+step.getEnd().getX()+"-"+step.getEnd().getY());
+		if(bestPath.getSteps().size()>1){
+			// if we haven't found a direct path, remove the first step, as that would be a driect start->target step
+			bestPath.getSteps().remove(0);
 		}
-		return null;
+		return bestPath;
 	}
 	
 	private void findPathInternal(ActorData ad, ActorData next, ActorData target, Path currentPath, ArrayList<Path> possiblePathList) {
 	
-		
-		
 		ArrayList<Step> currentSteps = currentPath.getSteps();
 		for (Step currentStep : currentSteps) {
-			if(ad.getX()==currentStep.getStart().getX() && next.getX()==currentStep.getEnd().getX()){
-				// we already tried this!
+			//if(ad.getX()==currentStep.getStart().getX() && next.getX()==currentStep.getEnd().getX() ){
+			if(ad.equalsXY(currentStep.getStart()) && next.equalsXY(currentStep.getEnd())){
+				// we already tried this step, not a viable path!
 				return;
 			}
 		}
-	
-		currentPath.addStep(new Step(ad,next));
-
+		
+		currentPath.addStep(new Step(ad,next));						
 		
 		ArrayList<WallCollision> collisionWallsAN = Calculation.getCollisionPoints(ad, next);
 		if(collisionWallsAN.size()>0){
 			// something is blocking our next step!
 			ActorData closestCollisionWall = Calculation.getClosestCollisionObject(ad, collisionWallsAN);
-			ActorData leftAvoid = getWayAroundObstacle(closestCollisionWall, true);
-			ActorData rightAvoid = getWayAroundObstacle(closestCollisionWall, false);
+			ActorData leftAvoid = Calculation.getWayAroundObstacle(closestCollisionWall, true);
+			ActorData rightAvoid = Calculation.getWayAroundObstacle(closestCollisionWall, false);
 			Path left = currentPath.getCopy();
 			Path right = currentPath.getCopy();
 		
@@ -178,8 +177,8 @@ public class Bot implements Actor{
 			if(collisionWallsNT.size()>0){
 				// its not the last step yet.. advance brave bot!
 				ActorData closestCollisionWall = Calculation.getClosestCollisionObject(ad, collisionWallsNT);
-				ActorData leftAvoid = getWayAroundObstacle(closestCollisionWall, true);
-				ActorData rightAvoid = getWayAroundObstacle(closestCollisionWall, false);
+				ActorData leftAvoid = Calculation.getWayAroundObstacle(closestCollisionWall, true);
+				ActorData rightAvoid = Calculation.getWayAroundObstacle(closestCollisionWall, false);
 
 				Path left = currentPath.getCopy();
 				Path right = currentPath.getCopy();			
@@ -189,8 +188,6 @@ public class Bot implements Actor{
 				findPathInternal(next, rightAvoid, target, right, possiblePathList);
 			}else{
 				// we found a direct way 
-				System.out.println("FOUND A WAY!");
-				//currentPath.addStep(new Step(target.getX(),target.getY()));
 				currentPath.addStep(new Step(next,target));
 				possiblePathList.add(currentPath);
 				return;
@@ -198,25 +195,6 @@ public class Bot implements Actor{
 			
 		}
 	}
-
-	
-	
-
-
-	private ActorData getWayAroundObstacle(ActorData collisionWall,boolean left) {
-		double wallLength = Calculation.getWallLength(collisionWall);
-		double x; double y;
-		if(left){
-			x = collisionWall.getX()+(collisionWall.getX()-collisionWall.getX_end()) / wallLength * Config.avoidDistance;
-			y = collisionWall.getY()+(collisionWall.getY()-collisionWall.getY_end()) / wallLength * Config.avoidDistance;	
-		}else{			
-			x = collisionWall.getX_end()+(collisionWall.getX_end()-collisionWall.getX()) / wallLength * Config.avoidDistance;
-			y = collisionWall.getY_end()+(collisionWall.getY_end()-collisionWall.getY()) / wallLength * Config.avoidDistance;
-		}
-		return new ActorData(x,y);
-	}
-
-
 
 	@Override
 	public ActorData getActorData() {

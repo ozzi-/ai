@@ -3,6 +3,7 @@ package util;
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
 
+import config.Config;
 import ai.Actor;
 import ai.ActorData;
 import ai.WallCollision;
@@ -30,7 +31,20 @@ public class Calculation {
 	public static double getWallLength(ActorData wallAd){
 		return Math.sqrt((wallAd.getX() - wallAd.getX_end())*(wallAd.getX() - wallAd.getX_end()) + (wallAd.getY() - wallAd.getY_end())*(wallAd.getY() - wallAd.getY_end()));
 	}
-	
+
+	public static ActorData getWayAroundObstacle(ActorData collisionWall,boolean left) {
+		double wallLength = Calculation.getWallLength(collisionWall);
+		double x; double y;
+		if(left){
+			x = collisionWall.getX()+(collisionWall.getX()-collisionWall.getX_end()) / wallLength * Config.avoidDistance;
+			y = collisionWall.getY()+(collisionWall.getY()-collisionWall.getY_end()) / wallLength * Config.avoidDistance;	
+		}else{			
+			x = collisionWall.getX_end()+(collisionWall.getX_end()-collisionWall.getX()) / wallLength * Config.avoidDistance;
+			y = collisionWall.getY_end()+(collisionWall.getY_end()-collisionWall.getY()) / wallLength * Config.avoidDistance;
+		}
+		return new ActorData(x,y);
+	}
+
 	
 	public static ActorData wallCollisionPoint(ActorData collidingWall, ActorData ad, ActorData target){
 		double x1 = collidingWall.getX();

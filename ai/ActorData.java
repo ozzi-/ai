@@ -54,9 +54,18 @@ public class ActorData {
 	public void setSpeed(int speed) {
 		this.speed = speed;
 	}
-
 	
-	public boolean actorDataSameXY(ActorData other){
+	public boolean equalsXY(ActorData other){
+		return (getX()==other.getX() && getY()==other.getY());
+	}
+	public boolean equalsXYEnd(ActorData other){
+		return (getX_end()==other.getX_end() && getY()==other.getY_end());
+	}
+	public boolean equalsXYStartAndEnd(ActorData other){
+		return equalsXY(other)&&equalsXYEnd(other);
+	}
+		
+	public boolean equalsXYEpsilon(ActorData other){
 		return Calculation.equals(getX(), other.getX(), Config.epsilon) && Calculation.equals(getY(), other.getY(), Config.epsilon);
 	}
 	
@@ -118,6 +127,10 @@ public class ActorData {
 		objectiveList.add(0, objective);
 	}
 	
+	/**
+	 * Returns IDLE if no objectives are there / left
+	 * @return
+	 */
 	public Objective getCurrentObjective(){
 		if(objectiveList.size()>0){
 			return objectiveList.get(0);			

@@ -70,15 +70,12 @@ public class Spawn {
 		
 		
 		Point point = new Point(new ActorData(190,400));
-		//Point point = new Point(new ActorData(Config.windowX/2, Config.windowY/2));
 		pointList.add(point);
 	
-//		Point pointTwo = new Point(new ActorData(Config.windowX/5, Config.windowY/3));
-//		pointList.add(pointTwo);
+		Point pointTwo = new Point(new ActorData(Config.windowX/5, Config.windowY/3));
+		pointList.add(pointTwo);
 
 		for (int i = 0; i < Config.botCount; i++) {
-			//int x = ThreadLocalRandom.current().nextInt(0,Config.windowX);
-			//int y = ThreadLocalRandom.current().nextInt(0,Config.windowY);
 			Bot actorbot = new Bot(new ActorData(860,540));
 			actorbot.getActorData().setSpeed(10);
 			actorThreadList.add(threadPool.submit(actorbot));

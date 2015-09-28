@@ -34,6 +34,5 @@ public class Step {
 		}
 		return length;
 	}
-
-
+	
 }

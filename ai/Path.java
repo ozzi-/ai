@@ -5,6 +5,8 @@ import java.util.ArrayList;
 public class Path {
 
 	private ArrayList<Step> steps = new ArrayList<Step>();
+	private int currentStep =0 ;
+
 	
 	public Path() {
 	}
@@ -22,13 +24,24 @@ public class Path {
 	}
 	
 	public Path getCopy(){
-		System.out.println("COPY WITH "+steps.size());
 		return new Path(new ArrayList<Step>(steps));			
 	}
 
 	public void setSteps(ArrayList<Step> steps) {
 		this.steps = steps;
 	}
-
+	
+	public Step getCurrentStep(){
+		return steps.get(currentStep);
+	}
+	
+	public boolean advanceStep(){
+		
+		if(currentStep<steps.size()-1){
+			currentStep++;
+			return true;
+		}
+		return false;
+	}
 
 }

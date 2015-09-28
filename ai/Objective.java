@@ -6,9 +6,9 @@ import java.util.ArrayList;
 public class Objective {
 	private String objType;
 	private ActorData target;
+	private Path pathToTarget;
 	
 	private ArrayList<Objective> stepsToObjective = new ArrayList<Objective>();
-	
 	
 	public Objective(String objType, ActorData target) {
 		this.objType = objType;
@@ -43,6 +43,15 @@ public class Objective {
 	public void setObj(String obj) {
 		this.objType = obj;
 	}
+
+	public Path getPathToTarget() {
+		return pathToTarget;
+	}
+
+	public void setPathToTarget(Path pathToTarget) {
+		this.pathToTarget = pathToTarget;
+	}
+
 
 	
 }

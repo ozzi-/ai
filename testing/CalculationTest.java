@@ -24,6 +24,19 @@ public class CalculationTest {
 		assertEquals(dir, 1.107,epsilon);
 	}
 	
+	
+	@Test
+	public void angleLine(){
+		ActorData line1 = new ActorData(10, 15);
+		line1.setX_end(20);
+		line1.setY_end(14);
+		ActorData line2 = new ActorData(10, 15);
+		line2.setX_end(30);
+		line2.setY_end(16);
+		double angle = Calculation.angleBetween2Lines(line1, line2);
+		assertEquals(6.13, angle,epsilon);
+	}
+	
 	@Test
 	public void testDistance() {
 		ActorData ad_0_0 = new ActorData(0, 0);
@@ -37,16 +50,16 @@ public class CalculationTest {
 		assertEquals(distance_0_0_and_0_5,5,epsilon);
 		
 		double distance_0_5_and_5_0= Calculation.getDistance(ad_0_5, ad_5_0);
-		assertEquals(distance_0_5_and_5_0,7,epsilon);
+		assertEquals(distance_0_5_and_5_0,7.07,epsilon);
 		
 		double distance_5_5_and_7_3= Calculation.getDistance(ad_5_5, ad_7_3);
-		assertEquals(distance_5_5_and_7_3,2,epsilon);
+		assertEquals(distance_5_5_and_7_3,2.82,epsilon);
 		
 		double distance_7_3_and_5_5= Calculation.getDistance(ad_7_3, ad_5_5);
-		assertEquals(distance_7_3_and_5_5,2,epsilon);
+		assertEquals(distance_7_3_and_5_5,2.82,epsilon);
 		
 		double distance_min2_3_and_7_3= Calculation.getDistance(ad_min2_3, ad_7_3);
-		assertEquals(distance_min2_3_and_7_3,9,epsilon);
+		assertEquals(distance_min2_3_and_7_3,9.0,epsilon);
 
 		
 	}
