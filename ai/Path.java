@@ -31,8 +31,15 @@ public class Path {
 		this.steps = steps;
 	}
 	
+	/**
+	 * Returns null if the path contains no steps
+	 * @return
+	 */
 	public Step getCurrentStep(){
-		return steps.get(currentStep);
+		if(steps.size()>0){
+			return steps.get(currentStep);			
+		}
+		return null;
 	}
 	
 	public boolean advanceStep(){

@@ -42,32 +42,76 @@ public class Bot implements Actor{
 
 
 	private void callGoto() {
-	
+		
 		// TODO check if target has moved in the meantime
 		Objective currentObjective = ad.getCurrentObjective();
 		
 		Path path;
-		if(!foundPath){			
-			 path = findPath(ad,currentObjective.getTarget());
+		if(!foundPath){		
+			long startTime = System.currentTimeMillis();
+			path = findPath(ad,currentObjective.getTarget());
+			long endTime = System.currentTimeMillis();
+			long executionTime = endTime-startTime;
+			
+			System.out.println("Found a path in "+executionTime+" ms with "+path.getSteps().size()+" steps");
 			currentObjective.setPathToTarget(path);
+
+			startTime = System.currentTimeMillis();
+			int op = optimizeSteps(path);
+			endTime = System.currentTimeMillis();
+			executionTime = endTime-startTime;
+
+			System.out.println("Optimization reduced steplist by "+op+" steps in "+executionTime+" ms");
+			
+			
 			foundPath=true;
+
 		}else{
 			path = currentObjective.getPathToTarget();
 		}
-		// TODO optimize path
-
-		Step currentStep = path.getCurrentStep();
-		goToPoint(currentStep.getEnd());
 		
-		if(ad.equalsXYEpsilon(currentStep.getEnd())){
-			boolean advanced = path.advanceStep();
-			if(!advanced){
-				ad.finishedCurrentObjective();
-			}
+		if(path==null){
+			ad.finishCurrentObjective();
 		}
 		
+		
+		if(!ad.getCurrentObjective().getObj().equals(ObjectiveType.IDLE)){
+			Step currentStep = path.getCurrentStep();
+			goToPoint(currentStep.getEnd());
+			if(ad.equalsXYEpsilon(currentStep.getEnd())){
+				boolean advanced = path.advanceStep();
+				if(!advanced){
+					ad.finishCurrentObjective();
+				}
+			}	
+		}
+				
 	}
 
+	private int optimizeSteps(Path path) {
+		int totalOptimizedSteps=0; int currentlyOptimizedSteps=0;
+		do{
+			currentlyOptimizedSteps=optimizeStepsInternal(path);
+			totalOptimizedSteps+=currentlyOptimizedSteps;
+		}while(currentlyOptimizedSteps>0);
+		return totalOptimizedSteps;
+	}
+
+	private int optimizeStepsInternal(Path path) {
+		int optimizedSteps=0;
+		ArrayList<Step> steps = path.getSteps();
+		for (int i = 0; i < steps.size(); i++) {
+			for (int j = i+2; j < steps.size(); j++) {
+				ArrayList<WallCollision> colPoints = Calculation.getCollisionPoints(steps.get(i).getStart(), steps.get(j).getStart());
+				if(colPoints.size()==0){
+					steps.get(i).setEnd(steps.get(j).getStart());
+					steps.remove(j-1);
+					optimizedSteps+=j-i-1;
+				}
+			}
+		}
+		return optimizedSteps;
+	}
 
 	private Point getClosestPoint(){
 		Point point = null;
@@ -126,13 +170,18 @@ public class Bot implements Actor{
 		return speed;
 	}
 	
-	
+	/**
+	 * 
+	 * @param ad
+	 * @param target
+	 * @return returns null if no path exists
+	 */
 	public Path findPath(ActorData ad,ActorData target){
 		foundPath=true;
 		ArrayList<Path> pathsList = new ArrayList<Path>();
 		Path currentPath = new Path();
 		findPathInternal(ad, target, target, currentPath, pathsList);
-		// TODO GET BEST PATH
+		// TODO GET BEST PATH, NOT JUST SHORTEST ONE
 		int check= Integer.MAX_VALUE;
 		Path bestPath=null;
 		for (Path path : pathsList) {
@@ -140,6 +189,10 @@ public class Bot implements Actor{
 				bestPath=path;
 				check=path.getSteps().size();
 			}
+		}
+		// there is no path, the target must be boxed in etc.
+		if(bestPath==null){
+			return null;
 		}
 		if(bestPath.getSteps().size()>1){
 			// if we haven't found a direct path, remove the first step, as that would be a driect start->target step

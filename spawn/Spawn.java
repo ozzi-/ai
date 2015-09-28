@@ -36,52 +36,26 @@ public class Spawn {
 		ArrayList<Actor> botList = ActorList.get(ActorName.BOT);
 		ArrayList<Actor> wallList = ActorList.get(ActorName.WALL);
 
-		ActorData adWall = new ActorData(200, 200);
-		adWall.setX_end(500);
-		adWall.setY_end(700);
-		Wall wall = new Wall(adWall);
-		wall.getActorData().setName("W1");
-		wallList.add(wall);
-
-
-
-		adWall = new ActorData(410, 400);
-		adWall.setX_end(670);
-		adWall.setY_end(910);
-		wall = new Wall(adWall);
-		wall.getActorData().setName("NOT WERK");
-		wallList.add(wall);
 		
-		adWall = new ActorData(200, 500);
-		adWall.setX_end(800);
-		adWall.setY_end(300);
-		wall = new Wall(adWall);
-		wall.getActorData().setName("W3");
-		wallList.add(wall);
-
-
-		adWall = new ActorData(220, 510);
-		adWall.setX_end(780);
-		adWall.setY_end(340);
-		wall = new Wall(adWall);
-		wall.getActorData().setName("W4");
-		wallList.add(wall);
-
+		ActorData adWall;
+		Wall wall;
 		
-		
-		Point point = new Point(new ActorData(190,400));
+		//createWallJail(wallList);
+		createRandomWalls(wallList);
+			
+		Point point = new Point(new ActorData(220,250));
 		pointList.add(point);
-	
+
 		Point pointTwo = new Point(new ActorData(Config.windowX/5, Config.windowY/3));
 		pointList.add(pointTwo);
 
+		
 		for (int i = 0; i < Config.botCount; i++) {
 			Bot actorbot = new Bot(new ActorData(860,540));
 			actorbot.getActorData().setSpeed(10);
 			actorThreadList.add(threadPool.submit(actorbot));
 			botList.add(actorbot);
 		}
-		
 		
 		
 		gui.JFRAME ex = new gui.JFRAME();		
@@ -114,5 +88,78 @@ public class Spawn {
 			Thread.sleep(sleepTime);
 			ex.getSurface().repaint();
 		}
+	}
+
+	private static void createRandomWalls(ArrayList<Actor> wallList) {
+		ActorData adWall;
+		Wall wall;
+		adWall = new ActorData(200, 200);
+		adWall.setX_end(500);
+		adWall.setY_end(700);
+		wall = new Wall(adWall);
+		wall.getActorData().setName("W1");
+		wallList.add(wall);
+
+		adWall = new ActorData(410, 400);
+		adWall.setX_end(670);
+		adWall.setY_end(910);
+		wall = new Wall(adWall);
+		wall.getActorData().setName("W2");
+		wallList.add(wall);
+		
+		adWall = new ActorData(200, 500);
+		adWall.setX_end(800);
+		adWall.setY_end(300);
+		wall = new Wall(adWall);
+		wall.getActorData().setName("W3");
+		wallList.add(wall);
+
+
+		adWall = new ActorData(220, 510);
+		adWall.setX_end(780);
+		adWall.setY_end(340);
+		wall = new Wall(adWall);
+		wall.getActorData().setName("W4");
+		wallList.add(wall);
+		
+		adWall = new ActorData(240, 520);
+		adWall.setX_end(790);
+		adWall.setY_end(350);
+		wall = new Wall(adWall);
+		wall.getActorData().setName("W5");
+		wallList.add(wall);
+	}
+
+	@SuppressWarnings("unused")
+	private static void createWallJail(ArrayList<Actor> wallList) {
+		ActorData adWall = new ActorData(200, 200);
+		adWall.setX_end(200);
+		adWall.setY_end(300);
+		Wall wall = new Wall(adWall);
+		wall.getActorData().setName("W1");
+		wallList.add(wall);
+		
+		adWall = new ActorData(200, 300);
+		adWall.setX_end(300);
+		adWall.setY_end(300);
+		wall = new Wall(adWall);
+		wall.getActorData().setName("W1");
+		wallList.add(wall);
+
+		
+		adWall = new ActorData(200, 200);
+		adWall.setX_end(290);
+		adWall.setY_end(200);
+		wall = new Wall(adWall);
+		wall.getActorData().setName("W1");
+		wallList.add(wall);
+		
+		
+		adWall = new ActorData(300, 300);
+		adWall.setX_end(300);
+		adWall.setY_end(200);
+		wall = new Wall(adWall);
+		wall.getActorData().setName("W1");
+		wallList.add(wall);
 	}
 }

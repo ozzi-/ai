@@ -52,7 +52,6 @@ public class Surface extends JComponent {
 			Actor wallActor = wallList.get(i);
 			ActorData wallAd = wallActor.getActorData();
 			g2d.drawLine((int)wallAd.getX(),(int)wallAd.getY(), (int) wallAd.getX_end(),(int)wallAd.getY_end());	
-			g2d.drawString(wallAd.getName(), (int)wallAd.getX()+40, (int)wallAd.getY());
 		}
 		
 	}

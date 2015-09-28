@@ -117,9 +117,9 @@ public class ActorData {
 		this.objectiveList = objectiveList;
 	}
 
-	public void finishedCurrentObjective(){
+	public void finishCurrentObjective(){
 		if(objectiveList.size()>0){
-			objectiveList.remove(0);			
+			objectiveList.remove(0);	
 		}
 	}
 	
