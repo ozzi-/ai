@@ -9,4 +9,5 @@ public interface Actor extends Callable<ActorData>{
 	public ActorData call();
 	public ActorData getActorData();
 	public String getRepresentation();
+	public boolean isSelected();
 }

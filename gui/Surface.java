@@ -45,7 +45,13 @@ public class Surface extends JComponent {
 		
 		for(int i = 0; i < pointList.size();i++){
 			Actor pointActor = pointList.get(i);
-			g2d.drawString(pointActor.getRepresentation(),(int)pointActor.getActorData().getX(), (int)pointActor.getActorData().getY());	
+			if(pointActor.isSelected()){
+				g2d.drawLine((int)pointActor.getActorData().getX(),(int)pointActor.getActorData().getY(), (int)pointActor.getActorData().getX_end(),(int)pointActor.getActorData().getY_end());
+				g2d.drawString("O",(int)pointActor.getActorData().getX(), (int)pointActor.getActorData().getY());	
+				g2d.drawString(pointActor.getRepresentation(),(int)pointActor.getActorData().getX_end(), (int)pointActor.getActorData().getY_end());					
+			}else{
+				g2d.drawString(pointActor.getRepresentation(),(int)pointActor.getActorData().getX(), (int)pointActor.getActorData().getY());	
+			}
 		}
 		
 		for(int i = 0; i < wallList.size();i++){

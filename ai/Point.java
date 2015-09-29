@@ -46,6 +46,8 @@ public class Point implements Actor{
 		if(selected){
 			representation="<o>";
 		}else{
+			ad.setX(ad.getX_end());
+			ad.setY(ad.getY_end());
 			representation="0";
 		}
 	}

@@ -44,15 +44,16 @@ public class Bot implements Actor{
 	private void callGoto() {
 		
 		// TODO check if target has moved in the meantime
+		
 		Objective currentObjective = ad.getCurrentObjective();
 		
+
 		Path path;
-		if(!foundPath){		
+		if(!foundPath || currentObjective.hasTargetHasMoved()){
 			long startTime = System.currentTimeMillis();
 			path = findPath(ad,currentObjective.getTarget());
 			long endTime = System.currentTimeMillis();
-			long executionTime = endTime-startTime;
-			
+			long executionTime = endTime-startTime;	
 			System.out.println("Found a path in "+executionTime+" ms with "+path.getSteps().size()+" steps");
 			currentObjective.setPathToTarget(path);
 
@@ -60,12 +61,10 @@ public class Bot implements Actor{
 			int op = optimizeSteps(path);
 			endTime = System.currentTimeMillis();
 			executionTime = endTime-startTime;
-
 			System.out.println("Optimization reduced steplist by "+op+" steps in "+executionTime+" ms");
 			
-			
+			currentObjective.resetOriginalTargetPosition();
 			foundPath=true;
-
 		}else{
 			path = currentObjective.getPathToTarget();
 		}
@@ -181,7 +180,23 @@ public class Bot implements Actor{
 		ArrayList<Path> pathsList = new ArrayList<Path>();
 		Path currentPath = new Path();
 		findPathInternal(ad, target, target, currentPath, pathsList);
-		// TODO GET BEST PATH, NOT JUST SHORTEST ONE
+		//Path bestPath = getPathLeastNodes(pathsList);
+		Path bestPath = getPathShortestLength(pathsList);
+
+		// there is no path, the target must be boxed in etc.
+		if(bestPath==null){
+			return null;
+		}
+		
+		if(bestPath.getSteps().size()>1){
+			// if we haven't found a direct path, remove the first step, as that would be a driect start->target step
+			bestPath.getSteps().remove(0);
+		}
+		return bestPath;
+	}
+
+	@SuppressWarnings("unused")
+	private Path getPathLeastNodes(ArrayList<Path> pathsList) {
 		int check= Integer.MAX_VALUE;
 		Path bestPath=null;
 		for (Path path : pathsList) {
@@ -190,13 +205,17 @@ public class Bot implements Actor{
 				check=path.getSteps().size();
 			}
 		}
-		// there is no path, the target must be boxed in etc.
-		if(bestPath==null){
-			return null;
-		}
-		if(bestPath.getSteps().size()>1){
-			// if we haven't found a direct path, remove the first step, as that would be a driect start->target step
-			bestPath.getSteps().remove(0);
+		return bestPath;
+	}
+	
+	private Path getPathShortestLength(ArrayList<Path> pathsList) {
+		double check= Double.MAX_VALUE;
+		Path bestPath=null;
+		for (Path path : pathsList) {
+			if(path.getPathLength()<check){
+				bestPath=path;
+				check=path.getPathLength();
+			}
 		}
 		return bestPath;
 	}
@@ -257,6 +276,11 @@ public class Bot implements Actor{
 	@Override
 	public String getRepresentation() {
 		return "X";
+	}
+
+	@Override
+	public boolean isSelected() {
+		return false;
 	}
 
 }

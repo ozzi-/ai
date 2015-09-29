@@ -30,5 +30,10 @@ public class Wall implements Actor {
 		return null;
 	}
 
+	@Override
+	public boolean isSelected() {
+		return false;
+	}
+
 
 }

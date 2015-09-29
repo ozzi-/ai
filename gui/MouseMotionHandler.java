@@ -19,8 +19,8 @@ public class MouseMotionHandler extends MouseMotionAdapter {
 		for (Actor actor : pointList) {
 			Point point = (Point) actor;
 			if(point.isSelected()){
-				point.getActorData().setX(e.getX());
-				point.getActorData().setY(e.getY());
+				point.getActorData().setX_end(e.getX());
+				point.getActorData().setY_end(e.getY());
 			}
 		}
 		super.mouseMoved(e);

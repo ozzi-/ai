@@ -19,7 +19,7 @@ public class MouseClickHandler extends MouseAdapter {
 		for (Actor actor : pointList) {
 			Point point = (Point) actor;
 			int mouse_x = e.getX(); int mouse_y = e.getY();
-			if(Calculation.xyIsInRadiusOfActor(mouse_x,mouse_y, point.getActorData())){
+			if(Calculation.xyIsInRadiusOfActor(mouse_x,mouse_y, point.getActorData()) || point.isSelected()){
 				point.toggleSelected();
 			}
 		}

@@ -36,10 +36,7 @@ public class Spawn {
 		ArrayList<Actor> botList = ActorList.get(ActorName.BOT);
 		ArrayList<Actor> wallList = ActorList.get(ActorName.WALL);
 
-		
-		ActorData adWall;
-		Wall wall;
-		
+			
 		//createWallJail(wallList);
 		createRandomWalls(wallList);
 			

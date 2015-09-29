@@ -42,6 +42,14 @@ public class Path {
 		return null;
 	}
 	
+	public double getPathLength(){
+		double totLength=0;
+		for (Step step : steps) {
+			totLength+=step.getLength();
+		}
+		return totLength;
+	}
+	
 	public boolean advanceStep(){
 		
 		if(currentStep<steps.size()-1){
