@@ -42,7 +42,6 @@ public class Surface extends JComponent {
 			}
 		}
 		
-		
 		for(int i = 0; i < pointList.size();i++){
 			Actor pointActor = pointList.get(i);
 			if(pointActor.isSelected()){

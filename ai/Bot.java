@@ -22,8 +22,6 @@ public class Bot implements Actor{
 		this.ad.setX_end(ad.getX());
 		this.ad.setY_end(ad.getY());
 		this.ad.setRadius(50);
-		this.ad.getObjectiveList().add(new Objective(ObjectiveType.GOTO,getClosestPoint().getActorData()));
-		//this.ad.getObjectiveList().add(new Objective(ObjectiveType.GOTO, new ActorData(500, 600)));
 	}
 
 	@Override
@@ -31,6 +29,7 @@ public class Bot implements Actor{
 		switch(ad.getCurrentObjective().getObj()){
 			case ObjectiveType.GOTO:
 			case ObjectiveType.FOLLOW:
+			case ObjectiveType.PATROL:
 				callGoto();
 				break;
 			case ObjectiveType.IDLE:
@@ -42,13 +41,9 @@ public class Bot implements Actor{
 
 
 	private void callGoto() {
-		
-		// TODO check if target has moved in the meantime
-		
 		Objective currentObjective = ad.getCurrentObjective();
-		
-
 		Path path;
+		
 		if(!foundPath || currentObjective.hasTargetHasMoved()){
 			long startTime = System.currentTimeMillis();
 			path = findPath(ad,currentObjective.getTarget());
@@ -68,13 +63,30 @@ public class Bot implements Actor{
 		}else{
 			path = currentObjective.getPathToTarget();
 		}
-		
 		if(path==null){
 			ad.finishCurrentObjective();
 		}
-		
-		
-		if(!ad.getCurrentObjective().getObj().equals(ObjectiveType.IDLE)){
+		gotoPath(path);
+		patrolPath(path);
+	}
+
+	private void patrolPath(Path path) {
+		String objectiveType = ad.getCurrentObjective().getObj();
+		if(objectiveType.equals(ObjectiveType.PATROL)){
+			Step currentStep = path.getCurrentStep();
+			goToPoint(currentStep.getEnd());
+			if(ad.equalsXYEpsilon(currentStep.getEnd())){
+				boolean advanced = path.advanceStep();
+				if(!advanced){
+					ad.getCurrentObjective().swapTargets();
+				}
+			}	
+		}
+	}
+
+	private void gotoPath(Path path) {
+		String objectiveType = ad.getCurrentObjective().getObj();
+		if(objectiveType.equals(ObjectiveType.GOTO)){
 			Step currentStep = path.getCurrentStep();
 			goToPoint(currentStep.getEnd());
 			if(ad.equalsXYEpsilon(currentStep.getEnd())){
@@ -84,7 +96,6 @@ public class Bot implements Actor{
 				}
 			}	
 		}
-				
 	}
 
 	private int optimizeSteps(Path path) {
@@ -112,18 +123,6 @@ public class Bot implements Actor{
 		return optimizedSteps;
 	}
 
-	private Point getClosestPoint(){
-		Point point = null;
-		double shortestDistance = Double.MAX_VALUE;
-		for(int i = 0; i< ActorList.get(ActorName.POINT).size();i++){
-			double distanceToPoint = util.Calculation.getDistance(this.ad, ActorList.get(ActorName.POINT).get(i).getActorData());
-			if (distanceToPoint < shortestDistance){
-				point = (Point)ActorList.get(ActorName.POINT).get(i);
-				shortestDistance = distanceToPoint;
-			}
-		}
-		return point;
-	}
 	
 
 	private void goToPoint(ActorData target) {

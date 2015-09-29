@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import config.Config;
 import ai.Actor;
 import ai.ActorData;
+import ai.Point;
 import ai.WallCollision;
 
 public class Calculation {
@@ -45,6 +46,19 @@ public class Calculation {
 		return new ActorData(x,y);
 	}
 
+	
+	public static Point getClosestPointToAD(ActorData ad){
+		Point point = null;
+		double shortestDistance = Double.MAX_VALUE;
+		for(int i = 0; i< ActorList.get(ActorName.POINT).size();i++){
+			double distanceToPoint = util.Calculation.getDistance(ad, ActorList.get(ActorName.POINT).get(i).getActorData());
+			if (distanceToPoint < shortestDistance){
+				point = (Point)ActorList.get(ActorName.POINT).get(i);
+				shortestDistance = distanceToPoint;
+			}
+		}
+		return point;
+	}
 	
 	public static ActorData wallCollisionPoint(ActorData collidingWall, ActorData ad, ActorData target){
 		double x1 = collidingWall.getX();

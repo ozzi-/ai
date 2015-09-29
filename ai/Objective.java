@@ -6,6 +6,7 @@ import java.util.ArrayList;
 public class Objective {
 	private String objType;
 	private ActorData target;
+	private ActorData target2;
 	private double origTargetX;
 	private double origTargetY;
 	private boolean targetHasMoved;
@@ -20,6 +21,12 @@ public class Objective {
 			this.origTargetX=target.getX();
 			this.origTargetY=target.getY();			
 		}
+	}
+	
+	public Objective(String objType, ActorData target, ActorData target2) {
+		this.objType = objType;
+		this.target= target;
+		this.setTarget2(target2);
 	}
 	
 	public void addStep(Objective step){
@@ -38,11 +45,23 @@ public class Objective {
 		return stepsToObjective;
 	}
 	
+	public void swapTargets(){
+		ActorData swap = target;
+		target = target2;
+		target2= swap;
+	}
+	
 	public ActorData getTarget() {
 		return target;
 	}
 	public void setTarget(ActorData target) {
 		this.target = target;
+	}
+	public ActorData getTarget2() {
+		return target2;
+	}
+	public void setTarget2(ActorData target2) {
+		this.target2 = target2;
 	}
 	public String getObj() {
 		return objType;
@@ -81,5 +100,5 @@ public class Objective {
 	public double getOrigTargetX() {
 		return origTargetX;
 	}
-	
+
 }

@@ -54,7 +54,6 @@ public class ActorData {
 	public void setSpeed(int speed) {
 		this.speed = speed;
 	}
-	
 	public boolean equalsXY(ActorData other){
 		return (getX()==other.getX() && getY()==other.getY());
 	}
@@ -63,8 +62,7 @@ public class ActorData {
 	}
 	public boolean equalsXYStartAndEnd(ActorData other){
 		return equalsXY(other)&&equalsXYEnd(other);
-	}
-		
+	}		
 	public boolean equalsXYEpsilon(ActorData other){
 		return Calculation.equals(getX(), other.getX(), Config.epsilon) && Calculation.equals(getY(), other.getY(), Config.epsilon);
 	}
@@ -95,7 +93,6 @@ public class ActorData {
 	public void setY_end(double y_end) {
 		this.y_end = y_end;
 	}
-
 
 	public int getRadius() {
 		return radius;

@@ -9,9 +9,12 @@ import java.util.concurrent.Future;
 
 import util.ActorList;
 import util.ActorName;
+import util.Calculation;
+import util.ObjectiveType;
 import ai.Actor;
 import ai.ActorData;
 import ai.Bot;
+import ai.Objective;
 import ai.Point;
 import ai.Wall;
 import config.Config;
@@ -49,7 +52,9 @@ public class Spawn {
 		
 		for (int i = 0; i < Config.botCount; i++) {
 			Bot actorbot = new Bot(new ActorData(860,540));
-			actorbot.getActorData().setSpeed(10);
+			ActorData actorDataBot = actorbot.getActorData();
+			actorDataBot.getObjectiveList().add(new Objective(ObjectiveType.PATROL,new ActorData(100, 100), new ActorData(600,600)));
+			actorDataBot.setSpeed(10);
 			actorThreadList.add(threadPool.submit(actorbot));
 			botList.add(actorbot);
 		}
@@ -68,7 +73,6 @@ public class Spawn {
 			long preActorTime = System.currentTimeMillis();
 			actorThreadList.clear();
 			for (int i = 0; i < Config.botCount; i++) {
-
 				Actor actor = botList.get(i);
 				actorThreadList.add(threadPool.submit(actor));
 			}
