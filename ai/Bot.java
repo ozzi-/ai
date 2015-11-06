@@ -21,7 +21,7 @@ public class Bot implements Actor{
 		this.ad = ad;
 		this.ad.setX_end(ad.getX());
 		this.ad.setY_end(ad.getY());
-		this.ad.setRadius(50);
+		this.ad.setRadius(10);
 	}
 
 	@Override
