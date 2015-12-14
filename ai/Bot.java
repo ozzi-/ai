@@ -15,6 +15,7 @@ import util.ObjectiveType;
 public class Bot implements Actor{
 
 	private ActorData ad;
+	private boolean debugOutput = true;
 	private boolean foundPath = false;
 	
 	public Bot(ActorData ad) {
@@ -32,6 +33,7 @@ public class Bot implements Actor{
 			case ObjectiveType.PATROL:
 				callGoto();
 				break;
+			case ObjectiveType.THINKING:
 			case ObjectiveType.IDLE:
 				break;
 		}
@@ -40,11 +42,12 @@ public class Bot implements Actor{
 
 
 
-	private void callGoto() {
+	private synchronized void callGoto() {
 		Objective currentObjective = ad.getCurrentObjective();
 		Path path;
 		
 		if(!foundPath || currentObjective.hasTargetHasMoved()){
+			ad.getObjectiveList().add(new Objective(ObjectiveType.THINKING, null));
 			long startTime = System.currentTimeMillis();
 			path = findPath(ad,currentObjective.getTarget());
 			long endTime = System.currentTimeMillis();
@@ -60,12 +63,24 @@ public class Bot implements Actor{
 			
 			currentObjective.resetOriginalTargetPosition();
 			foundPath=true;
+			synchronized (ad) {
+				ArrayList<Objective> a = ad.getObjectiveList();
+				int i = -1 ;
+				for (Objective objective : a) {
+					objective.getObj().equals(ObjectiveType.THINKING);
+					i++;
+				}
+				if(i!=-1){
+					ad.getObjectiveList().remove(i);
+				}
+			}
 		}else{
 			path = currentObjective.getPathToTarget();
 		}
 		if(path==null){
 			ad.finishCurrentObjective();
 		}
+
 		gotoPath(path);
 		patrolPath(path);
 	}
@@ -168,13 +183,14 @@ public class Bot implements Actor{
 		return speed;
 	}
 	
+	
 	/**
 	 * 
 	 * @param ad
 	 * @param target
 	 * @return returns null if no path exists
 	 */
-	public Path findPath(ActorData ad,ActorData target){
+	public synchronized Path findPath(ActorData ad,ActorData target){
 		foundPath=true;
 		ArrayList<Path> pathsList = new ArrayList<Path>();
 		Path currentPath = new Path();
@@ -188,7 +204,7 @@ public class Bot implements Actor{
 		}
 		
 		if(bestPath.getSteps().size()>1){
-			// if we haven't found a direct path, remove the first step, as that would be a driect start->target step
+			// if we haven't found a direct path, remove the first step, as that would be a direct start->target step
 			bestPath.getSteps().remove(0);
 		}
 		return bestPath;
@@ -223,13 +239,17 @@ public class Bot implements Actor{
 	
 		ArrayList<Step> currentSteps = currentPath.getSteps();
 		for (Step currentStep : currentSteps) {
-			//if(ad.getX()==currentStep.getStart().getX() && next.getX()==currentStep.getEnd().getX() ){
 			if(ad.equalsXY(currentStep.getStart()) && next.equalsXY(currentStep.getEnd())){
-				// we already tried this step, not a viable path!
+				if(debugOutput){
+					System.out.println("10 - we already tried this step, not a viable path AD={"+ad.getX()+"-"+ad.getY()+"} NEXT={"+next.getX()+"-"+next.getY()+"}");
+				}
 				return;
 			}
 		}
 		
+		if(debugOutput){
+			System.out.println("1 - new step AD={"+ad.getX()+"-"+ad.getY()+"} NEXT={"+next.getX()+"-"+next.getY()+"}");
+		}
 		currentPath.addStep(new Step(ad,next));						
 		
 		ArrayList<WallCollision> collisionWallsAN = Calculation.getCollisionPoints(ad, next);
@@ -240,7 +260,9 @@ public class Bot implements Actor{
 			ActorData rightAvoid = Calculation.getWayAroundObstacle(closestCollisionWall, false);
 			Path left = currentPath.getCopy();
 			Path right = currentPath.getCopy();
-		
+			if(debugOutput){
+				System.out.println("2 - something is blocking the next step LEFT={"+leftAvoid.getX()+"-"+leftAvoid.getY()+"}  RIGHT={"+rightAvoid.getX()+"-"+rightAvoid.getY()+"}");
+			}
 			findPathInternal(ad, leftAvoid, target, left, possiblePathList);
 			findPathInternal(ad, rightAvoid, target, right, possiblePathList);
 		}else{
@@ -254,11 +276,19 @@ public class Bot implements Actor{
 				Path left = currentPath.getCopy();
 				Path right = currentPath.getCopy();			
 			
+				if(debugOutput){
+					System.out.println("3 - its not the last step LEFT={"+leftAvoid.getX()+"-"+leftAvoid.getY()+"}  RIGHT={"+rightAvoid.getX()+"-"+rightAvoid.getY()+"}");
+				}
 
 				findPathInternal(next, leftAvoid, target, left, possiblePathList);
 				findPathInternal(next, rightAvoid, target, right, possiblePathList);
 			}else{
 				// we found a direct way 
+				
+				if(debugOutput){
+					System.out.println("4 - direct way found NEXT={"+next.getX()+"-"+next.getY()+"}  TARGET={"+target.getX()+"-"+target.getY()+"}");
+				}
+				
 				currentPath.addStep(new Step(next,target));
 				possiblePathList.add(currentPath);
 				return;

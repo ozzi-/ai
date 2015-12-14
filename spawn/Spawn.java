@@ -52,7 +52,8 @@ public class Spawn {
 		for (int i = 0; i < Config.botCount; i++) {
 			Bot actorbot = new Bot(new ActorData(860,540));
 			ActorData actorDataBot = actorbot.getActorData();
-			actorDataBot.getObjectiveList().add(new Objective(ObjectiveType.PATROL,new ActorData(100, 100), new ActorData(600,600)));
+			actorDataBot.getObjectiveList().add(new Objective(ObjectiveType.GOTO,point.getActorData())); 
+			//actorDataBot.getObjectiveList().add(new Objective(ObjectiveType.PATROL,new ActorData(100, 100), new ActorData(600,600)));
 			actorDataBot.setSpeed(10);
 			actorThreadList.add(threadPool.submit(actorbot));
 			botList.add(actorbot);
