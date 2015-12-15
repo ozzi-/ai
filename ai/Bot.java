@@ -237,9 +237,10 @@ public class Bot implements Actor{
 	
 	private void findPathInternal(ActorData ad, ActorData next, ActorData target, Path currentPath, ArrayList<Path> possiblePathList) {
 	
+		
 		ArrayList<Step> currentSteps = currentPath.getSteps();
 		for (Step currentStep : currentSteps) {
-			if(ad.equalsXY(currentStep.getStart()) && next.equalsXY(currentStep.getEnd())){
+			if(next.equalsXY(currentStep.getEnd())){
 				if(debugOutput){
 					System.out.println("10 - we already tried this step, not a viable path AD={"+ad.getX()+"-"+ad.getY()+"} NEXT={"+next.getX()+"-"+next.getY()+"}");
 				}

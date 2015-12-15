@@ -24,7 +24,11 @@ public class Path {
 	}
 	
 	public Path getCopy(){
-		return new Path(new ArrayList<Step>(steps));			
+		Path newPath = new Path();
+		for (Step step : steps) {
+			newPath.addStep(step);			
+		}
+		return newPath;
 	}
 
 	public void setSteps(ArrayList<Step> steps) {
