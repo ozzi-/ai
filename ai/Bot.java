@@ -160,7 +160,6 @@ public class Bot implements Actor{
 	 * 
 	 * @param ad
 	 * @param target
-	 * @return returns null if no path exists
 	 */
 	public synchronized Path findPath(ActorData ad,ActorData target){
 		foundPath=true;
@@ -175,7 +174,12 @@ public class Bot implements Actor{
 			if(Config.debugOutput){
 				System.out.println("Target unreachable!");
 			}
-			return new Path();
+			ArrayList<WallCollision> collisionWallsToTarget = Calculation.getCollisionPoints(ad, target);
+			int furthestCounter=collisionWallsToTarget.size()-1;
+			do{
+				bestPath = getApproximationPath(target, pathsList, collisionWallsToTarget,furthestCounter);
+				furthestCounter--;
+			}while(bestPath==null);			
 		}
 		
 		// if we haven't found a direct path, remove the first step, as that would be a direct start->target step
@@ -185,6 +189,39 @@ public class Bot implements Actor{
 		return bestPath;
 	}
 
+
+	private Path getApproximationPath(ActorData target, ArrayList<Path> pathsList, ArrayList<WallCollision> collisionWallsToTarget, int furthestCounter) {
+		
+		for (WallCollision wallCollision : collisionWallsToTarget) {
+			System.out.println(Calculation.getDistance(wallCollision.getCollisionPoint(), ad));
+		}
+		
+		System.out.println("-----");
+		Calculation.sort(collisionWallsToTarget, ad);
+	
+		for (WallCollision wallCollision : collisionWallsToTarget) {
+			System.out.println(Calculation.getDistance(wallCollision.getCollisionPoint(), ad));
+		}
+		ActorData furthestCollisionWall = collisionWallsToTarget.get( furthestCounter).getWall();
+		
+		
+		ActorData botToTarget = new ActorData(ad.getX(), ad.getY());
+		
+		botToTarget.setX_end(target.getX());
+		botToTarget.setY_end(target.getY());
+		
+		ActorData interSectionPoint = Calculation.intersectionPoint(botToTarget,furthestCollisionWall);
+		
+		ActorData adToIntersect = new ActorData(ad.getX(), ad.getY());
+		adToIntersect.setX_end(interSectionPoint.getX());
+		adToIntersect.setY_end(interSectionPoint.getY());
+		target = Calculation.reduceLenghtOfLine(adToIntersect, Config.avoidDistance);
+
+		Path currentPath = new Path(); 
+		Pathfinding.findPathInternal(ad, target,target, currentPath, pathsList);
+		
+		return Path.getPathShortestLength(pathsList);
+	}
 
 	@Override
 	public ActorData getActorData() {

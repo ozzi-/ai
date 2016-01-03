@@ -39,8 +39,8 @@ public class Spawn {
 		ArrayList<Actor> wallList = ActorList.get(ActorName.WALL);
 
 			
-		//createWallJail(wallList);
-		createRandomWalls(wallList);
+		createWallJail(wallList);
+		//createRandomWalls(wallList);
 			
 		Point point = new Point(new ActorData(220,250));
 		pointList.add(point);
@@ -48,6 +48,9 @@ public class Spawn {
 		Point pointTwo = new Point(new ActorData(Config.windowX/5, Config.windowY/3));
 		pointList.add(pointTwo);
 
+		
+		Point pointThree = new Point(new ActorData(299,285));
+		pointList.add(pointThree);
 		
 		for (int i = 0; i < Config.botCount; i++) {
 			Bot actorbot = new Bot(new ActorData(860,540));
@@ -132,36 +135,56 @@ public class Spawn {
 		wallList.add(wall);
 	}
 
-	@SuppressWarnings("unused")
 	private static void createWallJail(ArrayList<Actor> wallList) {
-		ActorData adWall = new ActorData(200, 200);
-		adWall.setX_end(200);
+		ActorData adWall = new ActorData(100, 100);
+		adWall.setX_end(100);
 		adWall.setY_end(300);
 		Wall wall = new Wall(adWall);
 		wall.getActorData().setName("W1");
 		wallList.add(wall);
 		
-		adWall = new ActorData(200, 300);
+		adWall = new ActorData(100, 300);
 		adWall.setX_end(300);
 		adWall.setY_end(300);
 		wall = new Wall(adWall);
-		wall.getActorData().setName("W1");
+		wall.getActorData().setName("W2");
 		wallList.add(wall);
 
-		
-		adWall = new ActorData(200, 200);
-		adWall.setX_end(290);
-		adWall.setY_end(200);
+		adWall = new ActorData(100, 100);
+		adWall.setX_end(300);
+		adWall.setY_end(100);
 		wall = new Wall(adWall);
-		wall.getActorData().setName("W1");
+		wall.getActorData().setName("W3");
 		wallList.add(wall);
-		
 		
 		adWall = new ActorData(300, 300);
 		adWall.setX_end(300);
+		adWall.setY_end(100);
+		wall = new Wall(adWall);
+		wall.getActorData().setName("W4");
+		wallList.add(wall);
+		
+
+		adWall = new ActorData(200,300);
+		adWall.setX_end(300);
 		adWall.setY_end(200);
 		wall = new Wall(adWall);
-		wall.getActorData().setName("W1");
+		wall.getActorData().setName("W5");
+		wallList.add(wall);
+
+		
+		adWall = new ActorData(180,480);
+		adWall.setX_end(480);
+		adWall.setY_end(180);
+		wall = new Wall(adWall);
+		wall.getActorData().setName("W6");
+		wallList.add(wall);
+		
+		adWall = new ActorData(200,500);
+		adWall.setX_end(500);
+		adWall.setY_end(200);
+		wall = new Wall(adWall);
+		wall.getActorData().setName("W6");
 		wallList.add(wall);
 	}
 }

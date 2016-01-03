@@ -11,6 +11,33 @@ import ai.WallCollision;
 
 public class Calculation {
 
+	private static int closest=0;
+	private static int furthest=1;
+
+	/**
+	 * 
+	 * @param line
+	 * @param lengthToReduce
+	 * @return line in an actordata element shortened by length at the end towards start
+	 */
+	public static ActorData reduceLenghtOfLine(ActorData line, double lengthToReduce){
+		
+		double dx = line.getX_end() - line.getX();
+		double dy = line.getY_end() - line.getY();
+		double length = Math.sqrt(dx * dx + dy * dy);
+		if (length > 0)
+		{
+		    dx /= length;
+		    dy /= length;
+		}
+		dx *= length - lengthToReduce;
+		dy *= length - lengthToReduce;
+		
+		double x = line.getX() + dx;
+		double y = line.getY() + dy;
+		return new ActorData(x, y);
+	}
+
 	public static double getDirection (ActorData target, ActorData source){
 		return Math.atan2((target.getY()- source.getY()),(target.getX()- source.getX()));
 	}
@@ -33,6 +60,13 @@ public class Calculation {
 		return Math.sqrt((wallAd.getX() - wallAd.getX_end())*(wallAd.getX() - wallAd.getX_end()) + (wallAd.getY() - wallAd.getY_end())*(wallAd.getY() - wallAd.getY_end()));
 	}
 
+	public static ActorData getMidPoint(ActorData line){
+		ActorData ad = new ActorData(0,0);
+		ad.setX((line.getX()+line.getX_end()) / 2);
+		ad.setY((line.getY()+line.getY_end()) / 2);
+		return ad;
+	}
+	
 	public static ActorData getWayAroundObstacle(ActorData collisionWall,boolean left) {
 		double wallLength = Calculation.getWallLength(collisionWall);
 		double x; double y;
@@ -114,26 +148,96 @@ public class Calculation {
 		}
 		return collisionPoints;
 	}
+	
+	public static ActorData intersectionPoint(ActorData ad1, ActorData ad2) {
+		int x1 = (int) ad1.getX(); int x2 = (int) ad1.getX_end();
+		int y1 = (int) ad1.getY(); int y2 = (int) ad1.getY_end();
+		
+		int x3 = (int) ad2.getX(); int x4 = (int) ad2.getX_end();
+		int y3 = (int) ad2.getY(); int y4 = (int) ad2.getY_end();
+		
+		int d = (x1-x2)*(y3-y4) - (y1-y2)*(x3-x4);
+		if (d == 0) return null;
+		int xi = ((x3-x4)*(x1*y2-y1*x2)-(x1-x2)*(x3*y4-y3*x4))/d;
+		int yi = ((y3-y4)*(x1*y2-y1*x2)-(y1-y2)*(x3*y4-y3*x4))/d;
+		return new ActorData(xi,yi);
+	}
 
-	/**
-	 * Returns the wall which has the closest collision point to ad
-	 * @param ad
-	 * @param collisionPoints
-	 * @return
-	 */
+	
 	public static ActorData getClosestCollisionObject(ActorData ad, ArrayList<WallCollision> collisionPoints) {
-		double distance = Double.MAX_VALUE;
+		return getMinMaxDistCollisionObject(ad, collisionPoints, closest);
+	}
+	
+	public static ActorData getFurthestCollisionObject(ActorData ad, ArrayList<WallCollision> collisionPoints) {
+		return getMinMaxDistCollisionObject(ad, collisionPoints,furthest);
+	}
+
+	public static ActorData getCollisionObjectsSortedByDist(ActorData ad, ArrayList<WallCollision> collisionPoints){
+		return ad;
+		
+	}
+	
+
+	 public static void sort(ArrayList<WallCollision> wc, ActorData ad) {
+	    if (wc ==null || wc.size()<2){
+	      return;
+	    }
+	    
+	    quicksortAsc(wc, ad, 0,  wc.size()-1);
+	  }
+
+	
+	 private static void quicksortAsc(ArrayList<WallCollision> wc, ActorData ad, int low, int high) {
+		 	int i = low, j = high;
+		    WallCollision pivotObj = wc.get(low + (high-low)/2);
+		    double pivot = getDistance(pivotObj.getCollisionPoint(), ad);
+		    while (i<=j) {
+		      while (getDistance(wc.get(i).getCollisionPoint(),ad) < pivot) {
+		        i++;
+		      }
+
+		      while (getDistance(wc.get(j).getCollisionPoint(),ad) > pivot) {
+		        j--;
+		      }
+
+		      if (i <= j) {
+		        exchange(wc,i, j);
+		        i++;
+		        j--;
+		      }
+		    }
+		    
+		    if (low < j){
+		    	quicksortAsc(wc,ad,low, j);
+		    }
+		    if (i < high){
+		    	quicksortAsc(wc,ad,i, high);
+		    }
+	 }
+	 private static void exchange(ArrayList<WallCollision>wc, int i, int j) {
+		    WallCollision temp = wc.get(i);
+		    wc.set(i, wc.get(j));
+		    wc.set(j, temp);
+	 }
+	
+	private static ActorData getMinMaxDistCollisionObject(ActorData ad, ArrayList<WallCollision> collisionPoints,int mode) {
+		double distance;
+		if(mode==closest){
+			distance = Double.MAX_VALUE;			
+		}else{
+			distance = Double.MIN_VALUE;						
+		}
 		ActorData firstCollisionObject = null;
 		for (WallCollision collisionPoint : collisionPoints) {
 			double pointDistance = getDistance(collisionPoint.getCollisionPoint(), ad);
-			if(pointDistance<distance){
+			if(mode==closest && pointDistance<distance || mode==furthest && pointDistance > distance){
 				distance=pointDistance;
 				firstCollisionObject=collisionPoint.getWall();
 			}
 		}
 		return firstCollisionObject;
 	}
-
+	
 	
 	public static ActorData getClosestPointOnSegment(double sx1, double sy1, double sx2, double sy2, double px, double py) {
 		double xDelta = sx2 - sx1;
